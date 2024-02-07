@@ -47,7 +47,11 @@ class OpenAI(BaseBackend):
         if isinstance(openai, Exception):
             raise openai
 
-        self.client = openai.OpenAI(*args, **kwargs)
+        if any('azure' in key for key in kwargs.keys()):
+            self.client = openai.AzureOpenAI(*args, **kwargs)
+        else:
+            self.client = openai.OpenAI(*args, **kwargs)
+
         self.model_name = model_name
         self.tokenizer = tiktoken.encoding_for_model(model_name)
         self.logit_bias_int = create_logit_bias_int(self.tokenizer)
